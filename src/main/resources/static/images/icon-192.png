@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d0d1a"/>
+      <stop offset="100%" style="stop-color:#12122a"/>
+    </linearGradient>
+    <linearGradient id="icon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6c63ff"/>
+      <stop offset="100%" style="stop-color:#a29bfe"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#6c63ff;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#6c63ff;stop-opacity:0"/>
+    </radialGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="192" height="192" rx="36" fill="url(#bg)"/>
+  <!-- Glow effect -->
+  <ellipse cx="96" cy="96" rx="70" ry="70" fill="url(#glow)"/>
+  <!-- Shopping bag shape -->
+  <path d="M60 80 L65 140 L127 140 L132 80 Z" fill="url(#icon)" opacity="0.9"/>
+  <!-- Bag handle -->
+  <path d="M76 80 Q76 56 96 56 Q116 56 116 80" fill="none" stroke="url(#icon)" stroke-width="8" stroke-linecap="round"/>
+  <!-- Shine on bag -->
+  <path d="M68 88 L70 132 L80 132 L78 88 Z" fill="white" opacity="0.1"/>
+  <!-- PWA label -->
+  <rect x="68" y="152" width="56" height="16" rx="8" fill="url(#icon)" opacity="0.6"/>
+  <text x="96" y="164" text-anchor="middle" fill="white" font-size="8" font-family="sans-serif" font-weight="bold">PWA</text>
+</svg>

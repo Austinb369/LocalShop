@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6c63ff">
+    <meta name="description" content="LocalShop PWA - Catálogo de productos con soporte offline, geolocalización y experiencia de app nativa.">
+    <title>LocalShop PWA - Spring Boot SSR</title>
+
+    <!-- Manifest PWA -->
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- Apple PWA support -->
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LocalShop">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+    <!-- ======================== APP SHELL: NAVBAR ======================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+                <div class="brand-icon">
+                    <i class="bi bi-shop-window"></i>
+                </div>
+                <span class="brand-text">LocalShop <span class="badge-pwa">PWA</span></span>
+            </a>
+
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <!-- Indicador offline -->
+                <div id="offlineIndicator" class="offline-badge d-none">
+                    <i class="bi bi-wifi-off"></i> Sin conexión
+                </div>
+
+                <!-- Botón Geolocalización -->
+                <button id="btnGeo" class="btn btn-geo">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span class="btn-geo-text">Mi Ubicación</span>
+                </button>
+
+                <!-- Botón instalar PWA -->
+                <button id="btnInstall" class="btn btn-install d-none">
+                    <i class="bi bi-download"></i>
+                    <span>Instalar App</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ======================== HERO SECTION ======================== -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content text-center">
+                <div class="hero-badge mb-3">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    Tecnología PWA + Spring Boot SSR
+                </div>
+                <h1 class="hero-title">Catálogo de <span class="text-gradient">Productos</span></h1>
+                <p class="hero-subtitle">
+                    Renderizado en el servidor con <strong>Thymeleaf</strong>, persistencia con <strong>Spring Data JPA</strong>
+                    y soporte <strong>offline</strong> mediante Service Worker.
+                </p>
+
+                <!-- Tarjetas de tecnología -->
+                <div class="tech-pills">
+                    <span class="tech-pill"><i class="bi bi-server"></i> Spring Boot SSR</span>
+                    <span class="tech-pill"><i class="bi bi-database-fill"></i> H2 Database</span>
+                    <span class="tech-pill"><i class="bi bi-wifi-off"></i> Offline Ready</span>
+                    <span class="tech-pill"><i class="bi bi-geo-alt-fill"></i> Geolocalización</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+    </section>
+
+    <!-- ======================== LOCATION PANEL ======================== -->
+    <div class="container mt-4" id="locationPanel" style="display:none;">
+        <div class="location-card">
+            <div class="location-card-inner">
+                <div class="location-icon">
+                    <i class="bi bi-geo-alt-fill"></i>
+                </div>
+                <div class="location-info">
+                    <span class="location-label">Ubicación actual detectada</span>
+                    <span id="locationText" class="location-coords">Obteniendo coordenadas...</span>
+                </div>
+                <button class="location-close" onclick="closeLocationPanel()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== STATS BAR ======================== -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" th:text="${#lists.size(productos)}">0</span>
+                    <span class="stat-label">Productos en catálogo</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">H2</span>
+                    <span class="stat-label">Base de datos activa</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">SSR</span>
+                    <span class="stat-label">Renderizado en servidor</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="swStatus">-</span>
+                    <span class="stat-label">Service Worker</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================== PRODUCT CATALOG (SSR) ======================== -->
+    <main class="catalog-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
+                    Catálogo de Productos
+                    <span class="data-source-badge">
+                        <i class="bi bi-database-fill-check"></i> Datos desde BD
+                    </span>
+                </h2>
+                <p class="section-subtitle">
+                    Datos recuperados mediante <code>ProductoRepository.findAll()</code> e inyectados por Thymeleaf (SSR)
+                </p>
+            </div>
+
+            <!-- Grid de productos (renderizado servidor) -->
+            <div class="products-grid">
+
+                <!-- Thymeleaf itera sobre la lista de productos inyectada por el controlador -->
+                <div class="product-card" th:each="producto : ${productos}">
+                    <div class="product-card-inner">
+
+                        <!-- Imagen / ícono del producto -->
+                        <div class="product-image-wrapper">
+                            <div class="product-icon-placeholder">
+                                <i class="bi bi-box-seam-fill"></i>
+                            </div>
+                            <div class="product-badge">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                        </div>
+
+                        <!-- Info del producto -->
+                        <div class="product-body">
+                            <h3 class="product-name" th:text="${producto.nombre}">Nombre del Producto</h3>
+                            <p class="product-desc" th:text="${producto.descripcion}">Descripción del producto.</p>
+
+                            <div class="product-footer">
+                                <div class="product-price">
+                                    <span class="price-label">Precio</span>
+                                    <span class="price-amount"
+                                          th:text="${'$' + #numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">
+                                        $0.00
+                                    </span>
+                                </div>
+                                <button class="btn-add-cart">
+                                    <i class="bi bi-cart-plus-fill"></i>
+                                    Agregar
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- ID del registro (útil para demostrar que vienen de BD) -->
+                        <div class="product-id-chip">
+                            <span>ID: </span><span th:text="${producto.id}">1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje si no hay productos -->
+                <div th:if="${#lists.isEmpty(productos)}" class="empty-state col-12">
+                    <i class="bi bi-inbox-fill"></i>
+                    <h4>No hay productos disponibles</h4>
+                    <p>La base de datos está vacía. Revisa el DataSeeder.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ======================== PWA INFO SECTION ======================== -->
+    <section class="pwa-info-section">
+        <div class="container">
+            <h2 class="section-title text-center mb-5">
+                Características PWA Implementadas
+            </h2>
+            <div class="features-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-gradient-purple">
+                        <i class="bi bi-server"></i>
+                    </div>
+                    <h4>SSR con Thymeleaf</h4>
+                    <p>El contenido es renderizado directamente en el servidor (Spring Boot) antes de enviarse al cliente, mejorando el SEO y la carga inicial.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-gradient-blue">
+                        <i class="bi bi-database-fill"></i>
+                    </div>
+                    <h4>Persistencia JPA</h4>
+                    <p>Uso de Spring Data JPA con H2 Database para la gestión del catálogo. El repositorio abstrae todas las operaciones CRUD.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-gradient-green">
+                        <i class="bi bi-wifi-off"></i>
+                    </div>
+                    <h4>Soporte Offline</h4>
+                    <p>El Service Worker intercepta las peticiones de red e implementa estrategia Network-First con fallback a caché para funcionamiento sin conexión.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-gradient-orange">
+                        <i class="bi bi-geo-alt-fill"></i>
+                    </div>
+                    <h4>API de Geolocalización</h4>
+                    <p>Acceso a la API nativa del navegador para obtener las coordenadas GPS del dispositivo con manejo de errores y permisos.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-gradient-pink">
+                        <i class="bi bi-phone-fill"></i>
+                    </div>
+                    <h4>Instalable (Manifest)</h4>
+                    <p>El manifiesto Web define metadatos, íconos y modo standalone, permitiendo instalar la PWA como app nativa en el dispositivo.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon bg-gradient-cyan">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <h4>App Shell Architecture</h4>
+                    <p>La estructura del shell (navbar, layout) está cacheada por el Service Worker, garantizando carga instantánea en visitas posteriores.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ======================== FOOTER ======================== -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <i class="bi bi-shop-window"></i>
+                    <span>LocalShop PWA</span>
+                </div>
+                <div class="footer-info">
+                    <p>Práctica de Aplicación Web Progresiva · Spring Boot 3 + Thymeleaf SSR + H2 JPA</p>
+                    <p class="footer-tech">
+                        <span>Java 17</span> · <span>Spring Boot 3.2</span> · <span>Thymeleaf</span> ·
+                        <span>H2 DB</span> · <span>Service Worker</span> · <span>Web Manifest</span>
+                    </p>
+                </div>
+                <div class="footer-authors">
+                    <strong>Autores del equipo:</strong>
+                    <ul>
+                        <li>Austin Gabriel Blanco Aguirre</li>
+                        <li>Arturo Valladares Ruiz</li>
+                        <li>Hiram Alejandro Quintana Soto</li>
+                        <li>Josue Galván Arana</li>
+                        <li>Saúl Eduardo Estrada Martínez</li>
+                        <li>Erick Fernando Alarcón Durán</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 LocalShop PWA · Todos los derechos reservados</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ======================== TOAST NOTIFICATIONS ======================== -->
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>

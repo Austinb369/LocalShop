@@ -1,0 +1,37 @@
+{
+  "short_name": "LocalShop",
+  "name": "LocalShop Progressive Web App",
+  "description": "Catálogo de productos con soporte offline, geolocalización y experiencia de app nativa. Construido con Spring Boot SSR + Thymeleaf + H2 JPA.",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "type": "image/svg+xml",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "type": "image/svg+xml",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#0d0d1a",
+  "theme_color": "#6c63ff",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "categories": ["shopping", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Catálogo",
+      "short_name": "Catálogo",
+      "description": "Ver catálogo de productos",
+      "url": "/",
+      "icons": [{ "src": "/images/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
