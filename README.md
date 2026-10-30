@@ -128,6 +128,8 @@ public class Producto {
 }
 ```
 
+![Captura de pantalla](./assets/1.png)
+
 **Diagrama del flujo SSR:**
 
 ```
@@ -154,6 +156,8 @@ Interfaz que extiende `JpaRepository`, proporcionando automáticamente operacion
 public interface ProductoRepository extends JpaRepository<Producto, Long> {}
 ```
 
+![Captura de pantalla](./assets/2.png)
+
 #### `ProductoController.java`
 
 Controlador MVC que recibe la petición GET en `/`, consulta la base de datos a través del repositorio e inyecta los datos en la vista Thymeleaf:
@@ -165,6 +169,8 @@ public String index(Model model) {
     return "index"; // SSR con Thymeleaf
 }
 ```
+
+![Captura de pantalla](./assets/3.png)
 
 #### `DataSeeder.java`
 
@@ -180,6 +186,8 @@ public CommandLineRunner seedDatabase(ProductoRepository repo) {
     };
 }
 ```
+
+![Captura de pantalla](./assets/4.png)
 
 ---
 
@@ -199,6 +207,8 @@ Define los metadatos de instalación de la PWA:
   "display": "standalone"
 }
 ```
+
+![Captura de pantalla](./assets/5.png)
 
 | Propiedad | Valor | Descripción |
 |-----------|-------|-------------|
